@@ -15,30 +15,35 @@
 
 ;;; CFFI bindings for POSIX functions
 
-;; Corresponds to the forkpty() syscall from libutil.
-;; Creates a new process and connects it to a new pseudo-terminal.
 (cffi:defcfun "forkpty" :int
+  "Corresponds to the forkpty() syscall from libutil.
+Creates a new process, allocates a new pseudo-terminal (PTY), and associates
+the PTY's slave side with the child's standard I/O streams.
+Returns the child's PID in the parent, 0 in the child, or -1 on error."
   (amaster :pointer)
   (name :pointer)
   (termp :pointer)
   (winp :pointer))
 
-;; Corresponds to the read() syscall.
-;; Reads from a file descriptor. We name it posix-read to avoid clashing with cl:read.
 (cffi:defcfun ("read" posix-read) :int
+  "Corresponds to the read() syscall.
+Reads a specified number of bytes from a file descriptor into a buffer.
+Renamed to 'posix-read' to avoid symbol conflicts with cl:read."
   (fd :int)
   (buf :pointer)
   (count :int))
 
-;; Corresponds to the write() syscall.
-;; Writes to a file descriptor. We name it posix-write to avoid clashing with cl:write.
 (cffi:defcfun ("write" posix-write) :int
+  "Corresponds to the write() syscall.
+Writes a specified number of bytes from a buffer to a file descriptor.
+Renamed to 'posix-write' to avoid symbol conflicts with cl:write."
   (fd :int)
   (buf :pointer)
   (count :int))
 
-;; Corresponds to the execvp() syscall.
-;; Replaces the current process image with a new process image.
 (cffi:defcfun "execvp" :int
+  "Corresponds to the execvp() syscall.
+Replaces the current process image with a new process image. Used by the child
+process to execute a shell after the fork."
   (file :string)
   (argv :pointer))

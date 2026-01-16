@@ -1,10 +1,22 @@
 (in-package #:lto-phase1)
 
-(defvar *master-fd* nil "The file descriptor for the master side of the PTY.")
+(defvar *master-fd* nil
+  "Holds the file descriptor for the master side of the PTY.
+NOTE: This is a global variable, which is not ideal. It is used by 'send-input'
+to direct output to the correct PTY. A future refactoring should make this
+explicitly passed instead.")
 
 (defun spawn-pty-shell ()
-  "Forks the current process, creates a PTY, and executes /bin/sh in the child.
-  The parent process stores and returns the master file descriptor."
+  "Spawns a new shell process connected to a pseudo-terminal (PTY).
+
+This function orchestrates several steps:
+1. It calls the 'forkpty' C function to create a new process.
+2. The child process replaces itself with '/bin/sh' using 'execvp'.
+3. The parent process receives the file descriptor for the master side of the PTY.
+
+Returns:
+  The integer file descriptor for the master side of the PTY, which can be used
+  by the parent process to communicate with the child shell."
   (cffi:with-foreign-object (amaster :int)
     (let ((pid (forkpty amaster (cffi:null-pointer) (cffi:null-pointer) (cffi:null-pointer))))
       (cond
