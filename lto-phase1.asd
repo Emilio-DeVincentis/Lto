@@ -2,7 +2,7 @@
   :description "LispTUI Orchestrator Phase 1: PTY Bridge"
   :author "Jules"
   :license "MIT"
-  :version "0.0.1"
+  :version "0.1.0"
   :serial t
   :depends-on (#:cffi #:bordeaux-threads)
   :components ((:module "src"
@@ -10,6 +10,8 @@
                 :components
                 ((:file "packages")
                  (:file "ffi")
+                 (:file "vte")
+                 (:file "parser")
                  (:file "process")
                  (:file "io")
                  (:file "interactive")))))
