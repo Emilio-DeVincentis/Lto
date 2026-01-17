@@ -47,3 +47,29 @@ Replaces the current process image with a new process image. Used by the child
 process to execute a shell after the fork."
   (file :string)
   (argv :pointer))
+
+(cffi:defcfun "waitpid" :int
+  (pid :int)
+  (statloc :pointer)
+  (options :int))
+
+;; For resizing
+(defconstant tiocswinsz #x5414)
+
+(cffi:defcstruct winsize
+  (ws_row :unsigned-short)
+  (ws_col :unsigned-short)
+  (ws_xpixel :unsigned-short)
+  (ws_ypixel :unsigned-short))
+
+(cffi:defcfun "ioctl" :int
+  (fd :int)
+  (request :unsigned-long)
+  &rest)
+
+(cffi:defcfun "kill" :int
+  (pid :int)
+  (sig :int))
+
+;; POSIX Signals
+(defconstant sigkill 9)
