@@ -1,6 +1,6 @@
 # Lto
 
-Lightweight terminal output (LTO) - rendering and PTY playback helper for Lisp.
+Lisp terminal orchestrator (LTO) - rendering and PTY playback helper for Lisp.
 
 Prerequisiti
 - SBCL
