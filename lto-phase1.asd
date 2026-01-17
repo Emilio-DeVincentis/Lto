@@ -4,7 +4,7 @@
   :license "MIT"
   :version "0.1.0"
   :serial t
-  :depends-on (#:cffi #:bordeaux-threads)
+  :depends-on (#:cffi #:bordeaux-threads #:cl-charms)
   :components ((:module "src"
                 :serial t
                 :components
@@ -14,4 +14,12 @@
                  (:file "parser")
                  (:file "process")
                  (:file "io")
-                 (:file "interactive")))))
+                 (:file "interactive")
+                 (:module "tui"
+                  :serial t
+                  :components
+                  ((:file "packages")
+                   (:file "pane")
+                   (:file "layout-manager")
+                   (:file "renderer")
+                   (:file "tui-main")))))))

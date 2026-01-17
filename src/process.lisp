@@ -15,8 +15,9 @@ This function orchestrates several steps:
 3. The parent process receives the file descriptor for the master side of the PTY.
 
 Returns:
-  The integer file descriptor for the master side of the PTY, which can be used
-  by the parent process to communicate with the child shell."
+  Two values:
+  1. The integer file descriptor for the master side of the PTY.
+  2. The PID of the spawned child process."
   (cffi:with-foreign-object (amaster :int)
     (let ((pid (forkpty amaster (cffi:null-pointer) (cffi:null-pointer) (cffi:null-pointer))))
       (cond
@@ -28,10 +29,9 @@ Returns:
                    (cffi:mem-aref argv :pointer 1) (cffi:null-pointer))
              (execvp "/bin/sh" argv))))
         ((> pid 0)
-         ;; Parent process: Store and return the master FD
-         (setf *master-fd* (cffi:mem-ref amaster :int))
-         (format t "[Parent] Spawned child with PID ~A, master FD: ~A~%" pid *master-fd*)
-         *master-fd*)
+         ;; Parent process: Return the master FD and the PID
+         (let ((master-fd (cffi:mem-ref amaster :int)))
+           (values master-fd pid)))
         (t
          ;; Error case
          (error "forkpty failed."))))))
