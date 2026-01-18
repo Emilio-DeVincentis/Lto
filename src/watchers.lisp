@@ -43,11 +43,11 @@
      ',name))
 
 ;;; --- Example Watcher ---
-(define-watcher example-error-watcher (pane matches)
-    :regex "Error"
-    :pane-specific-p nil
-    :callback ((let ((line (first matches)))
-                 (set-context "last-error" (format nil "Error found in pane ~A: ~A" (lto-tui::pane-id pane) line)))))
+;; (define-watcher example-error-watcher (pane matches)
+;;     :regex "Error"
+;;     :pane-specific-p nil
+;;     :callback ((let ((line (first matches)))
+;;                  (set-context "last-error" (format nil "Error found in pane ~A: ~A" (lto-tui::pane-id pane) line)))))
 
 (define-watcher lisp-error-jumper (pane matches)
   :regex "([\\w\\/\\.-]+.lisp):(\\d+):"
