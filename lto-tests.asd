@@ -8,5 +8,6 @@
   :components ((:file "packages")
                (:file "tests")
                (:file "context")
-               (:file "parser"))
+               (:file "parser")
+               (:file "watchers"))
   :perform (test-op (o c) (symbol-call '#:lto-tests '#:run-tests)))

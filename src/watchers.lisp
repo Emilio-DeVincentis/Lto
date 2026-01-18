@@ -9,6 +9,9 @@
   (callback nil :type function)
   (pane-specific-p nil :type boolean))
 
+(defvar *watcher-definitions* (make-hash-table)
+  "A hash table to store all defined watchers, keyed by their name.")
+
 (defvar *global-watchers* '()
   "A list of all globally active watchers.")
 
@@ -30,17 +33,15 @@
                        :compiled-regex (create-scanner ,regex :multi-line-mode t)
                        :callback (lambda (,pane-var ,matches-var) ,@callback)
                        :pane-specific-p ,pane-specific-p)))
-     (with-lock-held (*watchers-lock*)
-       (if ,pane-specific-p
-           ;; Pane-specific watchers are defined but not globally enabled.
-           ;; They need to be attached to a pane instance later.
-           (progn
-             (format t "Defined pane-specific watcher: ~A~%" ',name)
-             ;; Store it somewhere if you want to activate it by name later
-             )
-           ;; Global watchers are added to the active list immediately.
-           (push new-watcher *global-watchers*)))
+     (setf (gethash ',name *watcher-definitions*) new-watcher)
      ',name))
+
+(defun activate-watcher (name)
+  "Activates a watcher by moving it from definitions to the global list."
+  (let ((watcher (gethash name *watcher-definitions*)))
+    (when (and watcher (not (member watcher *global-watchers*)))
+      (with-lock-held (*watchers-lock*)
+        (push watcher *global-watchers*)))))
 
 ;;; --- Example Watcher ---
 ;; (define-watcher example-error-watcher (pane matches)

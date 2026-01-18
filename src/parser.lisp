@@ -74,4 +74,9 @@
                     (when (< y (vbuffer-height vbuffer))
                       (setf (vcell-char (aref (vbuffer-grid vbuffer) y x)) char)
                       (incf (vbuffer-cursor-x vbuffer)))))))
-          (incf i))))
+          (incf i))
+    (loop for watcher in *global-watchers*
+          do (let* ((line (get-line-text vbuffer (vbuffer-cursor-y vbuffer)))
+                    (matches (all-matches (watcher-compiled-regex watcher) line)))
+               (when matches
+                 (funcall (watcher-callback watcher) nil matches))))))

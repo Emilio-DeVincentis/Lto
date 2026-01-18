@@ -25,6 +25,8 @@
            #:watcher-compiled-regex
            #:*watchers-lock*
            #:*global-watchers*
+           #:activate-watcher
+           #:*watcher-definitions*
            ;; RPC exports
            #:send-to-editor
            ;; Context exports
