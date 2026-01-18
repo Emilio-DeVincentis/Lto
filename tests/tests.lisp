@@ -5,6 +5,9 @@
 
 (in-suite :lto-tests)
 
+(defun run-tests ()
+  (run! :lto-tests))
+
 (test sanity-check
   "A simple test to ensure the framework is set up correctly."
   (is (= 1 1) "This simple check should always pass."))

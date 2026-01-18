@@ -42,29 +42,36 @@
 
 (defun process-output-stream (vbuffer raw-string)
   "Parses a raw string from the PTY and updates the vbuffer accordingly."
-  (with-input-from-string (stream raw-string)
-    (loop for char = (read-char stream nil nil)
-          while char
-          do (cond
-               ((char= char #\Escape)
-                (let ((next-char (read-char stream nil nil)))
-                  (when (and next-char (char= next-char #\[))
-                    (parse-csi-sequence vbuffer stream))))
-               ((char= char #\newline)
-                (setf (vbuffer-cursor-x vbuffer) 0)
-                (when (< (vbuffer-cursor-y vbuffer) (1- (vbuffer-height vbuffer)))
-                  (incf (vbuffer-cursor-y vbuffer))))
-               ((char= char #\return)
-                (setf (vbuffer-cursor-x vbuffer) 0))
-               (t
-                ;; Handle printable characters
-                (when (>= (vbuffer-cursor-x vbuffer) (vbuffer-width vbuffer))
+  (let ((i 0))
+    (loop while (< i (length raw-string))
+          do (let ((char (char raw-string i)))
+               (cond
+                 ((char= char #\Escape)
+                  (when (< (+ i 1) (length raw-string))
+                    (let ((next-char (char raw-string (+ i 1))))
+                      (when (char= next-char #\[)
+                        (incf i 2)
+                        (let* ((end-of-seq (position-if (lambda (c) (alpha-char-p c)) raw-string :start i))
+                               (csi-body (subseq raw-string i (if end-of-seq (+ end-of-seq 1) (length raw-string)))))
+                          (with-input-from-string (stream csi-body)
+                            (parse-csi-sequence vbuffer stream))
+                          (setf i (+ i (length csi-body) -1)))))))
+                 ((char= char #\Newline)
                   (setf (vbuffer-cursor-x vbuffer) 0)
                   (when (< (vbuffer-cursor-y vbuffer) (1- (vbuffer-height vbuffer)))
                     (incf (vbuffer-cursor-y vbuffer))))
+                 ((char= char #\Return)
+                  (setf (vbuffer-cursor-x vbuffer) 0))
+                 (t
+                  ;; Handle printable characters
+                  (when (>= (vbuffer-cursor-x vbuffer) (vbuffer-width vbuffer))
+                    (setf (vbuffer-cursor-x vbuffer) 0)
+                    (when (< (vbuffer-cursor-y vbuffer) (1- (vbuffer-height vbuffer)))
+                      (incf (vbuffer-cursor-y vbuffer))))
 
-                (let ((x (vbuffer-cursor-x vbuffer))
-                      (y (vbuffer-cursor-y vbuffer)))
-                  (when (< y (vbuffer-height vbuffer))
-                    (setf (vcell-char (aref (vbuffer-grid vbuffer) y x)) char)
-                    (incf (vbuffer-cursor-x vbuffer)))))))))
+                  (let ((x (vbuffer-cursor-x vbuffer))
+                        (y (vbuffer-cursor-y vbuffer)))
+                    (when (< y (vbuffer-height vbuffer))
+                      (setf (vcell-char (aref (vbuffer-grid vbuffer) y x)) char)
+                      (incf (vbuffer-cursor-x vbuffer)))))))
+          (incf i))))

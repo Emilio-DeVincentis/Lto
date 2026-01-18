@@ -7,5 +7,6 @@
   :serial t
   :components ((:file "packages")
                (:file "tests")
-               (:file "context"))
-  :perform (test-op (o c) (symbol-call '#:fiveam '#:run! ':lto-tests)))
+               (:file "context")
+               (:file "parser"))
+  :perform (test-op (o c) (symbol-call '#:lto-tests '#:run-tests)))

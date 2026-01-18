@@ -5,7 +5,7 @@
 (test context-management
   "Test the basic functionality of get-context and set-context."
   ;; Ensure the context is clean before starting
-  (setf *lto-context* (make-hash-table :test 'equal))
+  (setf lto-phase1::*lto-context* (make-hash-table :test 'equal))
 
   ;; 1. Test setting and getting a value
   (is (equal "bar" (set-context "foo" "bar")))

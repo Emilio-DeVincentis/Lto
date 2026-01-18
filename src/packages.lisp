@@ -6,6 +6,11 @@
            #:make-vbuffer
            #:vbuffer-grid
            #:vcell-char
+           #:vbuffer-cursor-x
+           #:vbuffer-cursor-y
+           #:vbuffer-width
+           #:vbuffer-height
+           #:clear-buffer
            ;; Parser exports
            #:process-output-stream
            ;; FFI exports for resize
