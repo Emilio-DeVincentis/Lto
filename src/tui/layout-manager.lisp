@@ -99,8 +99,8 @@
      (let ((pane (pane-node-pane node)))
        (multiple-value-bind (cols rows) (charms:window-dimensions (pane-window pane))
          (cffi:with-foreign-object (ws 'lto-phase1::winsize)
-           (setf (cffi:foreign-slot-value ws 'lto-phase1::winsize 'ws_row) rows)
-           (setf (cffi:foreign-slot-value ws 'lto-phase1::winsize 'ws_col) cols)
+           (setf (cffi:foreign-slot-value ws '(:struct lto-phase1::winsize) 'lto-phase1::ws_row) rows)
+           (setf (cffi:foreign-slot-value ws '(:struct lto-phase1::winsize) 'lto-phase1::ws_col) cols)
            (ioctl (pane-pty-master-fd pane) tiocswinsz :pointer ws)))))
     (split-node
      (notify-panes-of-resize (split-node-child-a node))

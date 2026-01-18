@@ -179,7 +179,7 @@
             (setf *command-mode-p* t))
            ((characterp ch)
             (when *active-pane*
-              (send-input (pane-pty-master-fd *active-pane*) (string ch)))))))
+              (send-input (pane-pty-master-fd *active-pane*) (string ch))))))
 
       (unless *layout-root* (return))
 

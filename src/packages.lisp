@@ -11,6 +11,8 @@
            #:vbuffer-width
            #:vbuffer-height
            #:clear-buffer
+           #:get-line-text
+           #:find-string-in-buffer
            ;; Parser exports
            #:process-output-stream
            ;; FFI exports for resize
