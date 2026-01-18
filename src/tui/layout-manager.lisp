@@ -129,35 +129,30 @@
            (recalculate-layout (split-node-child-a node) y x height-a width)
            (recalculate-layout (split-node-child-b node) (+ y height-a) x height-b width))))))
 
-(defun split-active-pane (orientation)
+(defun split-active-pane (orientation command)
+  "Splits the active pane, creating a new pane alongside it.
+   Returns the newly created pane object."
   (let ((pane-to-split *active-pane*))
     (when pane-to-split
       (let ((node-to-split (find-pane-node *layout-root* pane-to-split)))
         (when node-to-split
-          (kill (pane-child-pid pane-to-split) sigkill)
-          (posix-close (pane-pty-master-fd pane-to-split))
-          (charms/ll:delwin (pane-window pane-to-split))
+          (let* ((new-pane-id (get-next-pane-id))
+                 (new-pane (make-pane new-pane-id
+                                      (format nil "Pane ~d" new-pane-id)
+                                      command
+                                      (make-vbuffer 1 1) nil 0 0)) ; FD/PID are set later
+                 (new-node (make-pane-node new-pane))
+                 (new-split (make-split-node orientation
+                                             node-to-split
+                                             new-node
+                                             :parent (layout-node-parent node-to-split))))
 
-          (multiple-value-bind (fd1 pid1) (spawn-pty-shell)
-            (multiple-value-bind (fd2 pid2) (spawn-pty-shell)
-              (let* ((id1 (pane-id pane-to-split))
-                     (id2 (get-next-pane-id))
-                     (pane1 (make-pane id1 (format nil "Pane ~d" id1) (make-vbuffer 1 1) nil fd1 pid1))
-                     (pane2 (make-pane id2 (format nil "Pane ~d" id2) (make-vbuffer 1 1) nil fd2 pid2)))
+            (setf (layout-node-parent node-to-split) new-split)
+            (setf (layout-node-parent new-node) new-split)
 
-                (start-pane-reader-thread pane1)
-                (start-pane-reader-thread pane2)
+            (if (eq node-to-split *layout-root*)
+                (setf *layout-root* new-split)
+                (replace-node-in-parent node-to-split new-split))
 
-                (let* ((node1 (make-pane-node pane1))
-                       (node2 (make-pane-node pane2))
-                       (new-split (make-split-node orientation node1 node2 :parent (layout-node-parent node-to-split))))
-                  (setf (layout-node-parent node1) new-split)
-                  (setf (layout-node-parent node2) new-split)
-
-                  (if (eq node-to-split *layout-root*)
-                      (setf *layout-root* new-split)
-                      (replace-node-in-parent node-to-split new-split))
-
-                  (setf *active-pane* pane1)
-                  (multiple-value-bind (cols rows) (charms:window-dimensions charms:*standard-window*)
-                    (recalculate-layout *layout-root* 0 0 rows cols)))))))))))
+            (setf *active-pane* new-pane)
+            new-pane))))))

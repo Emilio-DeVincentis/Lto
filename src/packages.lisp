@@ -1,6 +1,6 @@
 (defpackage #:lto-phase1
-  (:use #:cl)
-  (:export #:spawn-pty-shell
+  (:use #:cl #:bordeaux-threads #:cl-ppcre #:iolib #:babel)
+  (:export #:spawn-process-in-pty
            #:send-input
            ;; VTE exports
            #:make-vbuffer
@@ -13,4 +13,14 @@
            #:tiocswinsz
            #:kill
            #:posix-close
-           #:sigkill))
+           #:sigkill
+           ;; Watcher exports
+           #:define-watcher
+           #:watcher-callback
+           #:watcher-compiled-regex
+           #:*watchers-lock*
+           #:*global-watchers*
+           ;; RPC exports
+           #:send-to-editor
+           ;; Context exports
+           #:set-context))
