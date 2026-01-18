@@ -23,4 +23,6 @@
            ;; RPC exports
            #:send-to-editor
            ;; Context exports
-           #:set-context))
+           #:get-context
+           #:set-context
+           #:*lto-context*))

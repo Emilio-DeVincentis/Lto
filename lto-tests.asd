@@ -6,5 +6,6 @@
   :depends-on (#:lto-phase1 #:fiveam)
   :serial t
   :components ((:file "packages")
-               (:file "tests"))
+               (:file "tests")
+               (:file "context"))
   :perform (test-op (o c) (symbol-call '#:fiveam '#:run! ':lto-tests)))
