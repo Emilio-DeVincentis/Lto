@@ -20,7 +20,12 @@
            #:tiocswinsz
            #:kill
            #:posix-close
+           #:posix-read
+           #:posix-write
            #:sigkill
+           #:forkpty
+           #:execvp
+           #:setenv
            ;; Watcher exports
            #:define-watcher
            #:watcher-callback

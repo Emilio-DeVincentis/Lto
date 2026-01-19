@@ -11,5 +11,6 @@
                (:file "parser")
                (:file "watchers")
                (:file "vte")
-               (:file "rpc"))
+               (:file "rpc")
+               (:file "process"))
   :perform (test-op (o c) (symbol-call '#:lto-tests '#:run-tests)))
