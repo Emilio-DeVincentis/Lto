@@ -29,6 +29,13 @@
          ;; getting stuck on an environmental issue. This will leak a file
          ;; descriptor for each test run, which is acceptable in this
          ;; ephemeral CI environment.
+         ;; NOTE: In this test environment, SBCL/ASDF seems to have trouble
+         ;; resolving the 'posix-close' FFI symbol during the unwind phase
+         ;; of a test, even when properly exported and imported.
+         ;; We are commenting this out as a pragmatic workaround to avoid
+         ;; getting stuck on an environmental issue. This will leak a file
+         ;; descriptor for each test run, which is acceptable in this
+         ;; ephemeral CI environment.
          ;; (handler-case (lto-phase1:posix-close ,master-fd-var)
          ;;   (error (e) (format *error-output* "Error closing FD ~A: ~A~%" ,master-fd-var e)))
          ))))
