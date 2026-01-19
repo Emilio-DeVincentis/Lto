@@ -78,19 +78,31 @@
   (when *active-pane*
     (let* ((pane-to-close *active-pane*)
            (node-to-close (find-pane-node *layout-root* pane-to-close)))
-      (cond
-        ((eq node-to-close *layout-root*)
-         (setf *layout-root* nil))
-        (t
-         (let* ((parent-split (layout-node-parent node-to-close))
-                (sibling-node (get-sibling-node node-to-close)))
+      (when node-to-close
+        (cond
+          ;; Case 1: The pane to close is the only pane (the root).
+          ((eq node-to-close *layout-root*)
            (kill (pane-child-pid pane-to-close) sigkill)
            (charms/ll:delwin (pane-window pane-to-close))
-           (replace-node-in-parent parent-split sibling-node)
-           (setf (layout-node-parent sibling-node) (layout-node-parent parent-split))
-           (setf *active-pane* (pane-node-pane (get-first-leaf sibling-node)))
-           (multiple-value-bind (cols rows) (charms:window-dimensions charms:*standard-window*)
-             (recalculate-layout *layout-root* 0 0 rows cols))))))))
+           (setf *layout-root* nil)
+           (setf *active-pane* nil))
+
+          ;; Case 2: The pane is part of a split.
+          (t
+           (let* ((parent-split (layout-node-parent node-to-close))
+                  (sibling-node (get-sibling-node node-to-close)))
+             (kill (pane-child-pid pane-to-close) sigkill)
+             (charms/ll:delwin (pane-window pane-to-close))
+
+             ;; If the parent split is the root, the sibling becomes the new root.
+             (if (eq parent-split *layout-root*)
+                 (setf *layout-root* sibling-node)
+                 (replace-node-in-parent parent-split sibling-node))
+
+             (setf (layout-node-parent sibling-node) (layout-node-parent parent-split))
+             (setf *active-pane* (pane-node-pane (get-first-leaf sibling-node)))
+             (multiple-value-bind (cols rows) (charms:window-dimensions charms:*standard-window*)
+               (recalculate-layout *layout-root* 0 0 rows cols)))))))))
 
 (defun notify-panes-of-resize (node)
   "Traverse the layout tree and notify each PTY of the new terminal size."
