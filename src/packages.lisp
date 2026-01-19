@@ -1,6 +1,7 @@
 (defpackage #:lto-phase1
   (:use #:cl #:bordeaux-threads #:cl-ppcre #:iolib #:babel)
   (:export #:spawn-process-in-pty
+           #:start-reader-thread
            #:send-input
            ;; VTE exports
            #:make-vbuffer

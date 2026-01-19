@@ -13,5 +13,6 @@
                (:file "vte")
                (:file "rpc")
                (:file "process")
-               (:file "interactive"))
+               (:file "interactive")
+               (:file "io"))
   :perform (test-op (o c) (symbol-call '#:lto-tests '#:run-tests)))
