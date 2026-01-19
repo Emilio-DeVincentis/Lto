@@ -8,6 +8,13 @@
            ;; Layout and Pane accessors
            #:layout-node-parent
            #:pane-node-pane
+           #:split-node-orientation
+           #:split-node-child-a
+           #:split-node-child-b
            ;; Layout functions
-           #:make-pane-node)
+           #:make-pane-node
+           #:split-active-pane
+           ;; Globals
+           #:*layout-root*
+           #:*active-pane*)
   (:shadowing-import-from #:lto-phase1 #:kill))
