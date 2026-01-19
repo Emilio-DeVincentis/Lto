@@ -22,6 +22,10 @@ background colors."
 This class encapsulates the grid of characters (vcells), the dimensions of the
 terminal, and the cursor position."))
 
+(defun make-vbuffer (width height)
+  "Creates and returns a new vbuffer instance."
+  (make-instance 'vbuffer :width width :height height))
+
 (defmethod initialize-instance :after ((buffer vbuffer) &key)
   "Post-initialization method for the vbuffer class.
 This method is called automatically after a new vbuffer instance is created.

@@ -7,5 +7,8 @@
 (push *default-pathname-defaults* asdf:*central-registry*)
 (ql:quickload :lto-tui)
 
+;; Activate our watchers
+(lto-phase1:activate-watcher 'lto-phase1:lisp-error-jumper)
+
 ;; Start the TUI
 (lto-tui:start-tui)
