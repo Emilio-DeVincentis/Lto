@@ -2,6 +2,11 @@
 
 (in-suite :lto-tests)
 
+(test context-globals-initialization
+  "Test that the global context variables are initialized correctly."
+  (is (hash-table-p lto-phase1::*lto-context*))
+  (is (typep lto-phase1::*lto-context-lock* 'bt:lock)))
+
 (test context-management
   "Test the basic functionality of get-context and set-context."
   ;; Ensure the context is clean before starting
