@@ -20,6 +20,7 @@
            #:find-pane-node
            #:get-sibling-node
            #:get-first-leaf
+           #:move-focus
            ;; Globals
            #:*layout-root*
            #:*active-pane*

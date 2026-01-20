@@ -97,3 +97,46 @@
       (setf (symbol-function 'charms/ll:delwin) original-delwin)
       (setf (symbol-function 'lto-tui::recalculate-layout) original-recalculate)
       (setf (symbol-function 'charms:window-dimensions) original-dims))))
+
+(test move-focus-test
+  "Tests moving focus between panes."
+  (setup-layout-test)
+  ;; 1. Setup a nested layout
+  (let* ((pane1 (make-instance 'pane :id 1 :title "Pane 1"))
+         (pane2 (make-instance 'pane :id 2 :title "Pane 2"))
+         (pane3 (make-instance 'pane :id 3 :title "Pane 3"))
+         (node1 (make-pane-node pane1))
+         (node2 (make-pane-node pane2))
+         (node3 (make-pane-node pane3))
+         (h-split (make-split-node :horizontal node2 node3))
+         (v-split (make-split-node :vertical node1 h-split)))
+    (setf (layout-node-parent node1) v-split)
+    (setf (layout-node-parent h-split) v-split)
+    (setf (layout-node-parent node2) h-split)
+    (setf (layout-node-parent node3) h-split)
+    (setf lto-tui::*layout-root* v-split)
+
+    ;; 2. Test moving right from pane1
+    (setf lto-tui::*active-pane* pane1)
+    (move-focus :right)
+    (is (eq pane2 lto-tui::*active-pane*) "Focus should move right from pane1 to pane2.")
+
+    ;; 3. Test moving left from pane2
+    (move-focus :left)
+    (is (eq pane1 lto-tui::*active-pane*) "Focus should move left from pane2 to pane1.")
+
+    ;; 4. Test moving down from pane2
+    (setf lto-tui::*active-pane* pane2)
+    (move-focus :down)
+    (is (eq pane3 lto-tui::*active-pane*) "Focus should move down from pane2 to pane3.")
+
+    ;; 5. Test moving up from pane3
+    (move-focus :up)
+    (is (eq pane2 lto-tui::*active-pane*) "Focus should move up from pane3 to pane2.")
+
+    ;; 6. Test invalid moves (should not change focus)
+    (setf lto-tui::*active-pane* pane1)
+    (move-focus :left)
+    (is (eq pane1 lto-tui::*active-pane*) "Moving left from pane1 should have no effect.")
+    (move-focus :up)
+    (is (eq pane1 lto-tui::*active-pane*) "Moving up from pane1 should have no effect.")))

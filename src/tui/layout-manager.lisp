@@ -59,20 +59,30 @@
     (split-node (get-first-leaf (split-node-child-a node)))))
 
 (defun move-focus (direction)
-  (let* ((current-node (find-pane-node *layout-root* *active-pane*))
-         (parent (layout-node-parent current-node)))
-    (when (and parent (typep parent 'split-node))
-      (let ((orientation (split-node-orientation parent))
-            (sibling (get-sibling-node current-node)))
-        (cond
-          ((and (eq direction :right) (eq orientation :vertical) (eq current-node (split-node-child-a parent)))
-           (setf *active-pane* (pane-node-pane (get-first-leaf sibling))))
-          ((and (eq direction :left) (eq orientation :vertical) (eq current-node (split-node-child-b parent)))
-           (setf *active-pane* (pane-node-pane (get-first-leaf sibling))))
-          ((and (eq direction :down) (eq orientation :horizontal) (eq current-node (split-node-child-a parent)))
-           (setf *active-pane* (pane-node-pane (get-first-leaf sibling))))
-          ((and (eq direction :up) (eq orientation :horizontal) (eq current-node (split-node-child-b parent)))
-           (setf *active-pane* (pane-node-pane (get-first-leaf sibling)))))))))
+  (labels ((find-target-pane (node)
+             (let ((parent (layout-node-parent node)))
+               (when (and parent (typep parent 'split-node))
+                 (let ((orientation (split-node-orientation parent))
+                       (sibling (get-sibling-node node)))
+                   (cond
+                     ;; Moving right in a vertical split
+                     ((and (eq direction :right) (eq orientation :vertical) (eq node (split-node-child-a parent)))
+                      (get-first-leaf sibling))
+                     ;; Moving left in a vertical split
+                     ((and (eq direction :left) (eq orientation :vertical) (eq node (split-node-child-b parent)))
+                      (get-first-leaf sibling))
+                     ;; Moving down in a horizontal split
+                     ((and (eq direction :down) (eq orientation :horizontal) (eq node (split-node-child-a parent)))
+                      (get-first-leaf sibling))
+                     ;; Moving up in a horizontal split
+                     ((and (eq direction :up) (eq orientation :horizontal) (eq node (split-node-child-b parent)))
+                      (get-first-leaf sibling))
+                     ;; Otherwise, recurse up the tree
+                     (t (find-target-pane parent))))))))
+    (let* ((current-node (find-pane-node *layout-root* *active-pane*))
+           (target-node (find-target-pane current-node)))
+      (when target-node
+        (setf *active-pane* (pane-node-pane target-node))))))
 
 (defun close-active-pane ()
   (when *active-pane*
