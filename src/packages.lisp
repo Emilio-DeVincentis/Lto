@@ -31,6 +31,7 @@
            #:define-watcher
            #:watcher-callback
            #:watcher-compiled-regex
+           #:lisp-error-jumper
            #:*watchers-lock*
            #:*global-watchers*
            #:activate-watcher
