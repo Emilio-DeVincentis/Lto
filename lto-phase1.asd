@@ -9,10 +9,10 @@
                 :serial t
                 :components
                 ((:file "packages")
+                 (:file "ffi")
                  (:file "context")
                  (:file "watchers")
                  (:file "rpc")
-                 (:file "ffi")
                  (:file "vte")
                  (:file "parser")
                  (:file "process")

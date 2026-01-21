@@ -13,5 +13,4 @@
                  (:file "layout-manager")
                  (:file "renderer")
                  (:file "tui-main")
-                 (:file "snapshot")
-                 (:file "test-rpc")))))
+                 (:file "snapshot")))))

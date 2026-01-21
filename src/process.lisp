@@ -14,29 +14,46 @@ explicitly passed instead.")
       (cond
         ((zerop pid)
          ;; Child process
-         ;; 1. Set environment variables
          (dolist (var env-vars)
-           (let ((name (car var))
-                 (value (cdr var)))
-             (cffi:with-foreign-strings ((c-name name) (c-value value))
-               (setenv c-name c-value 1)))) ; 1 = overwrite
-
-         ;; 2. Prepare command and arguments for execvp
+           (setenv (car var) (cdr var) 1))
          (let* ((all-args (cons command args))
                 (arg-count (length all-args)))
            (cffi:with-foreign-object (argv :pointer (1+ arg-count))
-             (loop for i from 0
-                   for arg in all-args
+             (loop for i from 0 for arg in all-args
                    do (setf (cffi:mem-aref argv :pointer i) (cffi:foreign-string-alloc arg)))
              (setf (cffi:mem-aref argv :pointer arg-count) (cffi:null-pointer))
-
              (execvp command argv)
-             ;; If execvp returns, it's an error
              (error "execvp failed for command: ~A" command))))
         ((> pid 0)
-         ;; Parent process: Return the master FD and the PID
          (let ((master-fd (cffi:mem-ref amaster :int)))
            (values master-fd pid)))
         (t
-         ;; Error case
+         (error "forkpty failed."))))))
+
+(defun spawn-process-in-raw-pty (command args &optional (env-vars nil))
+  "Spawns a process in a PTY after configuring the PTY's slave
+   side to raw mode in the child process."
+  (cffi:with-foreign-object (amaster :int)
+    (let ((pid (forkpty amaster (cffi:null-pointer) (cffi:null-pointer) (cffi:null-pointer))))
+      (cond
+        ((zerop pid)
+         ;; Child process
+         (cffi:with-foreign-object (termios '(:struct termios))
+           (tcgetattr 0 termios)
+           (cfmakeraw termios)
+           (tcsetattr 0 0 termios))
+         (dolist (var env-vars)
+           (setenv (car var) (cdr var) 1))
+         (let* ((all-args (cons command args))
+                (arg-count (length all-args)))
+           (cffi:with-foreign-object (argv :pointer (1+ arg-count))
+             (loop for i from 0 for arg in all-args
+                   do (setf (cffi:mem-aref argv :pointer i) (cffi:foreign-string-alloc arg)))
+             (setf (cffi:mem-aref argv :pointer arg-count) (cffi:null-pointer))
+             (execvp command argv)
+             (error "execvp failed"))))
+        ((> pid 0)
+         (let ((master-fd (cffi:mem-ref amaster :int)))
+           (values master-fd pid)))
+        (t
          (error "forkpty failed."))))))

@@ -16,37 +16,34 @@
 ;;; CFFI bindings for POSIX functions
 
 (cffi:defcfun "forkpty" :int
-  "Corresponds to the forkpty() syscall from libutil.
-Creates a new process, allocates a new pseudo-terminal (PTY), and associates
-the PTY's slave side with the child's standard I/O streams.
-Returns the child's PID in the parent, 0 in the child, or -1 on error."
+  "Corresponds to the forkpty() syscall from libutil."
   (amaster :pointer)
   (name :pointer)
   (termp :pointer)
   (winp :pointer))
 
 (cffi:defcfun ("read" posix-read) :int
-  "Corresponds to the read() syscall.
-Reads a specified number of bytes from a file descriptor into a buffer.
-Renamed to 'posix-read' to avoid symbol conflicts with cl:read."
+  "Corresponds to the read() syscall."
   (fd :int)
   (buf :pointer)
   (count :int))
 
 (cffi:defcfun ("write" posix-write) :int
-  "Corresponds to the write() syscall.
-Writes a specified number of bytes from a buffer to a file descriptor.
-Renamed to 'posix-write' to avoid symbol conflicts with cl:write."
+  "Corresponds to the write() syscall."
   (fd :int)
   (buf :pointer)
   (count :int))
 
 (cffi:defcfun "execvp" :int
-  "Corresponds to the execvp() syscall.
-Replaces the current process image with a new process image. Used by the child
-process to execute a shell after the fork."
+  "Corresponds to the execvp() syscall."
   (file :string)
   (argv :pointer))
+
+(cffi:defcfun "setenv" :int
+  "Corresponds to the setenv() syscall."
+  (name :string)
+  (value :string)
+  (overwrite :int))
 
 (cffi:defcfun "waitpid" :int
   (pid :int)
@@ -71,5 +68,36 @@ process to execute a shell after the fork."
   (pid :int)
   (sig :int))
 
+(cffi:defcfun "dup2" :int
+  (oldfd :int)
+  (newfd :int))
+
 ;; POSIX Signals
 (defconstant sigkill 9)
+
+;;; --- Termios definitions ---
+
+(cffi:defcstruct termios
+  (c_iflag :unsigned-int)
+  (c_oflag :unsigned-int)
+  (c_cflag :unsigned-int)
+  (c_lflag :unsigned-int)
+  (c_line :unsigned-char)
+  (c_cc :unsigned-char :count 32)
+  (c_ispeed :unsigned-int)
+  (c_ospeed :unsigned-int))
+
+(cffi:defcfun "tcgetattr" :int
+  (fd :int)
+  (termios_p :pointer))
+
+(cffi:defcfun "tcsetattr" :int
+  (fd :int)
+  (optional_actions :int)
+  (termios_p :pointer))
+
+(cffi:defcfun "cfmakeraw" :void
+  (termios_p :pointer))
+
+;; Constants for waitpid
+(defconstant wuntraced 2)

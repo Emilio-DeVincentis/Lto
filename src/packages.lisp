@@ -1,6 +1,7 @@
 (defpackage #:lto-phase1
   (:use #:cl #:bordeaux-threads #:cl-ppcre #:iolib #:babel)
   (:export #:spawn-process-in-pty
+           #:spawn-process-in-raw-pty
            #:start-reader-thread
            #:send-input
            ;; VTE exports
@@ -16,7 +17,7 @@
            #:find-string-in-buffer
            ;; Parser exports
            #:process-output-stream
-           ;; FFI exports for resize
+           ;; FFI exports
            #:ioctl
            #:tiocswinsz
            #:kill
@@ -27,6 +28,14 @@
            #:forkpty
            #:execvp
            #:setenv
+           #:waitpid
+           #:dup2
+           ;; Termios exports
+           #:termios
+           #:tcgetattr
+           #:tcsetattr
+           #:cfmakeraw
+           #:wuntraced
            ;; Watcher exports
            #:define-watcher
            #:watcher-callback
