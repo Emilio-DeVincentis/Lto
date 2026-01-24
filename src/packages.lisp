@@ -4,6 +4,9 @@
            #:spawn-process-in-raw-pty
            #:start-reader-thread
            #:send-input
+           #:kill-process
+           #:rpc-request
+           #:start-rpc-server
            ;; VTE exports
            #:make-vbuffer
            #:vbuffer-grid
@@ -15,6 +18,7 @@
            #:clear-buffer
            #:get-line-text
            #:find-string-in-buffer
+           #:dump-vbuffer-to-string
            ;; Parser exports
            #:process-output-stream
            ;; FFI exports

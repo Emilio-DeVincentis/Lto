@@ -146,6 +146,9 @@
       (charms/ll:init-pair 1 charms/ll:color_blue charms/ll:color_black)
       (charms/ll:init-pair 2 charms/ll:color_green charms/ll:color_black))
 
+    (when (uiop:getenv "LTO_TEST_MODE")
+      (start-rpc-server))
+
     ;; Start the I/O thread
     (setf *running* t)
     (setf *io-thread* (make-thread #'io-loop :name "io-loop"))
